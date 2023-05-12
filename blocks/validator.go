@@ -29,7 +29,11 @@ func (v *Validator) IsDataValid(payload []byte) error {
 		return err
 	}
 
-	for _, productItem := range payloadStr.ProductItems {
+	return v.IsProductItemsSectionValid(payloadStr)
+}
+
+func (v *Validator) IsProductItemsSectionValid(payload orderPayloadSkeleton) error {
+	for _, productItem := range payload.ProductItems {
 		bv, err := v.getProductItemBlockValidator(productItem["type"].(string), productItem)
 		if err != nil {
 			return err
@@ -39,7 +43,7 @@ func (v *Validator) IsDataValid(payload []byte) error {
 			return bErr
 		}
 
-		if pErr := bv.IsPaymentSectionValid(payloadStr.Payment); pErr != nil {
+		if pErr := bv.IsPaymentSectionValid(payload.Payment); pErr != nil {
 			return pErr
 		}
 	}

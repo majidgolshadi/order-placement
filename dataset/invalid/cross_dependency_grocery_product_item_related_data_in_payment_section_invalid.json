@@ -1,0 +1,18 @@
+{
+  "product_items": [
+    {
+      "type": "food",
+      "id": "1212",
+      "name": "food_product_name"
+    },
+    {
+      "type": "grocery",
+      "code": "1313",
+      "sku": "test-sku-123123"
+    }
+  ],
+  "payment": {
+    "total_order_value": "123123",
+    "food_item_price": "123"
+  }
+}
