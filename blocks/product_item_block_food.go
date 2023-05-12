@@ -2,21 +2,14 @@ package blocks
 
 import (
 	"errors"
-	"github.com/mitchellh/mapstructure"
 )
 
-type Food struct {
+type ProductItemFood struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
-func (f Food) MapUnmarshal(data map[string]any) (SectionValidator, error) {
-	var food Food
-	err := mapstructure.Decode(data, &food)
-
-	return food, err
-}
-func (f Food) IsBlockDataValid() error {
+func (f ProductItemFood) IsBlockDataValid() error {
 	if f.ID == "" {
 		return errors.New("id field is empty")
 	}
@@ -28,7 +21,7 @@ func (f Food) IsBlockDataValid() error {
 	return nil
 }
 
-func (f Food) IsPaymentSectionValid(payment Payment) error {
+func (f ProductItemFood) IsPaymentSectionValid(payment Payment) error {
 	if payment.FoodItemPrice == "" {
 		return errors.New("food item price should be set")
 	}
