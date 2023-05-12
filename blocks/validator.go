@@ -6,8 +6,16 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type ProductBlockValidator interface {
+	BlockValidator
+	PaymentCrossDependencyValidator
+}
+
 type BlockValidator interface {
 	IsBlockDataValid() error
+}
+
+type PaymentCrossDependencyValidator interface {
 	IsPaymentSectionValid(payment Payment) error
 }
 
@@ -51,7 +59,7 @@ func (v *Validator) IsProductItemsSectionValid(payload orderPayloadSkeleton) err
 	return nil
 }
 
-func (v *Validator) getProductItemBlockValidator(productItemType string, data map[string]any) (BlockValidator, error) {
+func (v *Validator) getProductItemBlockValidator(productItemType string, data map[string]any) (ProductBlockValidator, error) {
 	if productItemType == "food" {
 		var productItem ProductItemFood
 		if err := mapstructure.Decode(data, &productItem); err != nil {
