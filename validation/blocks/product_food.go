@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"errors"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -15,22 +16,22 @@ func (f Food) MapUnmarshal(data map[string]any) (SectionValidator, error) {
 
 	return food, err
 }
-func (f Food) IsBlockDataValid() bool {
+func (f Food) IsBlockDataValid() error {
 	if f.ID == "" {
-		return false
+		return errors.New("id field is empty")
 	}
 
 	if f.Name == "" {
-		return false
+		return errors.New("name field is empty")
 	}
 
-	return true
+	return nil
 }
 
-func (f Food) IsPaymentSectionValid(payment Payment) bool {
+func (f Food) IsPaymentSectionValid(payment Payment) error {
 	if payment.FoodItemPrice == "" {
-		return false
+		return errors.New("food item price should be set")
 	}
 
-	return true
+	return nil
 }

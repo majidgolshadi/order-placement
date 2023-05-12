@@ -1,8 +1,8 @@
 package blocks
 
 type SectionValidator interface {
-	IsBlockDataValid() bool
-	IsPaymentSectionValid(payment Payment) bool
+	IsBlockDataValid() error
+	IsPaymentSectionValid(payment Payment) error
 }
 
 type DataUnmarshal interface {

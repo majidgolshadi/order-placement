@@ -1,15 +1,17 @@
 package blocks
 
+import "errors"
+
 type Payment struct {
 	TotalOrderValue  string `json:"total_order_value"`
 	FoodItemPrice    string `json:"food_item_price"`
 	GroceryItemPrice string `json:"grocery_item_price"`
 }
 
-func (p Payment) IsBlockDataValid() bool {
+func (p Payment) IsBlockDataValid() error {
 	if p.TotalOrderValue == "" {
-		return false
+		return errors.New("total order value is empty")
 	}
 
-	return true
+	return nil
 }

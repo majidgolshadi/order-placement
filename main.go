@@ -21,19 +21,19 @@ func main() {
 
 	br := blocks.GetBlockRepository()
 
-	if !payload.Payment.IsBlockDataValid() {
-		log.Fatal("Payment section data is not valid")
+	if err := payload.Payment.IsBlockDataValid(); err != nil {
+		log.Fatal(err)
 	}
 
 	for _, p := range payload.ProductItems {
 		sv := br.GetProductStruct(p["type"].(string), p)
 
-		if !sv.IsBlockDataValid() {
-			log.Fatal(p["type"].(string), " data block is not valid")
+		if err := sv.IsBlockDataValid(); err != nil {
+			log.Fatal(p["type"].(string), err)
 		}
 
-		if !sv.IsPaymentSectionValid(payload.Payment) {
-			log.Fatal(p["type"].(string), " related payment section data is not valid")
+		if err := sv.IsPaymentSectionValid(payload.Payment); err != nil {
+			log.Fatal(p["type"].(string), err)
 		}
 	}
 
