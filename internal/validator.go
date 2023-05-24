@@ -1,46 +1,36 @@
-package blocks
+package internal
 
 import (
-	"encoding/json"
 	"errors"
+	"github.com/deliveryhero/pd-order-placement/internal/blocks"
 	"github.com/mitchellh/mapstructure"
 )
-
-type ProductBlockValidator interface {
-	BlockValidator
-	PaymentCrossDependencyValidator
-}
 
 type BlockValidator interface {
 	IsBlockDataValid() error
 }
 
 type PaymentCrossDependencyValidator interface {
-	IsPaymentSectionValid(payment Payment) error
+	IsPaymentSectionValid(payment blocks.Payment) error
 }
 
-type orderPayloadSkeleton struct {
-	ProductItems []map[string]any `json:"product_items"`
-	Payment      Payment          `json:"payment"`
+type ProductBlockValidator interface {
+	BlockValidator
+	PaymentCrossDependencyValidator
 }
 
 type Validator struct {
 }
 
-func (v *Validator) IsDataValid(payload []byte) error {
-	payloadStr := orderPayloadSkeleton{}
-	if err := json.Unmarshal(payload, &payloadStr); err != nil {
+func (v *Validator) IsDataValid(payload payloadSkeleton) error {
+	if err := payload.Payment.IsBlockDataValid(); err != nil {
 		return err
 	}
 
-	if err := payloadStr.Payment.IsBlockDataValid(); err != nil {
-		return err
-	}
-
-	return v.IsProductItemsSectionValid(payloadStr)
+	return v.IsProductItemsSectionValid(payload)
 }
 
-func (v *Validator) IsProductItemsSectionValid(payload orderPayloadSkeleton) error {
+func (v *Validator) IsProductItemsSectionValid(payload payloadSkeleton) error {
 	for _, productItem := range payload.ProductItems {
 		bv, err := v.getProductItemBlockValidator(productItem["type"].(string), productItem)
 		if err != nil {
@@ -61,7 +51,7 @@ func (v *Validator) IsProductItemsSectionValid(payload orderPayloadSkeleton) err
 
 func (v *Validator) getProductItemBlockValidator(productItemType string, data map[string]any) (ProductBlockValidator, error) {
 	if productItemType == "food" {
-		var productItem ProductItemFood
+		var productItem blocks.ProductItemFood
 		if err := mapstructure.Decode(data, &productItem); err != nil {
 			return nil, err
 		}
@@ -70,7 +60,16 @@ func (v *Validator) getProductItemBlockValidator(productItemType string, data ma
 	}
 
 	if productItemType == "grocery" {
-		var productItem ProductItemGrocery
+		var productItem blocks.ProductItemGrocery
+		if err := mapstructure.Decode(data, &productItem); err != nil {
+			return nil, err
+		}
+
+		return productItem, nil
+	}
+
+	if productItemType == "subscription" {
+		var productItem blocks.ProductItemSubscription
 		if err := mapstructure.Decode(data, &productItem); err != nil {
 			return nil, err
 		}

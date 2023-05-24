@@ -1,6 +1,8 @@
 package blocks
 
 import (
+	"context"
+	"database/sql"
 	"errors"
 )
 
@@ -23,4 +25,11 @@ func (g ProductItemGrocery) IsPaymentSectionValid(payment Payment) error {
 	}
 
 	return nil
+}
+
+func (g ProductItemGrocery) Persist(ctx context.Context, tx *sql.Tx, orderCode string) error {
+	query := "INSERT INTO `product_item_grocery` (`order_code`,`sku`) VALUES (?, ?)"
+	_, err := tx.ExecContext(ctx, query, orderCode, g.Sku)
+
+	return err
 }

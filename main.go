@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/deliveryhero/pd-order-placement/blocks"
+	"context"
+	"github.com/deliveryhero/pd-order-placement/internal"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,11 +14,28 @@ func main() {
 		log.Fatal(err)
 	}
 
-	validator := &blocks.Validator{}
-	vErr := validator.IsDataValid(payload)
+	validator := &internal.Validator{}
+	datastore := &internal.Datastore{}
+	ctx := context.Background()
 
-	if vErr != nil {
+	orderCodeGenerator := internal.NewCodeGenerator()
+
+	payloadStr, err := internal.GetPayloadSkeleton(payload)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if vErr := validator.IsDataValid(payloadStr); vErr != nil {
 		log.Fatal(vErr)
 	}
 
+	code, cErr := orderCodeGenerator.GetOrderCode(payloadStr.Type)
+	if cErr != nil {
+		log.Fatal(cErr)
+	}
+
+	dError := datastore.Flush(ctx, payloadStr, code)
+	if dError != nil {
+		log.Fatal(dError)
+	}
 }

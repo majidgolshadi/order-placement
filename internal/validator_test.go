@@ -1,7 +1,6 @@
-package main_test
+package internal
 
 import (
-	"github.com/deliveryhero/pd-order-placement/blocks"
 	"os"
 	"path/filepath"
 	"testing"
@@ -15,12 +14,20 @@ func TestValidPayload(t *testing.T) {
 		"payload_with_product": {
 			PayloadFileName: "product_payload.json",
 		},
+		"multiple_food_products": {
+			PayloadFileName: "multiple_food_products.json",
+		},
 	}
 
-	v := &blocks.Validator{}
+	v := &Validator{}
 
 	for _, test := range tests {
-		payload, err := os.ReadFile(filepath.Join("dataset", "valid", test.PayloadFileName))
+		rawData, err := os.ReadFile(filepath.Join("dataset", "valid", test.PayloadFileName))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		payload, err := GetPayloadSkeleton(rawData)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -64,10 +71,15 @@ func TestInvalidPayload(t *testing.T) {
 		},
 	}
 
-	v := &blocks.Validator{}
+	v := &Validator{}
 
 	for _, test := range tests {
-		payload, err := os.ReadFile(filepath.Join("dataset", "invalid", test.PayloadFileName))
+		rawData, err := os.ReadFile(filepath.Join("dataset", "invalid", test.PayloadFileName))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		payload, err := GetPayloadSkeleton(rawData)
 		if err != nil {
 			t.Fatal(err)
 		}
